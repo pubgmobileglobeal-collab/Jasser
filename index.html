@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تجربة إرسال الصور إلى تليجرام</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        #fileInput {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            text-align: left;
+            padding: 10px;
+            background-color: #fafafa;
+            font-size: 0.9em;
+        }
+        .file-list li {
+            padding: 5px 0;
+            border-bottom: 1px dotted #ddd;
+        }
+        .file-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🚀 تجربة إرسال الصور إلى تليجرام</h2>
+    
+    <input type="file" id="fileInput" accept="image/*" multiple>
+    
+    <button onclick="uploadFiles()">إرسال الصور المحددة إلى البوت</button>
+    
+    <div id="status">الرجاء اختيار الصور والنقر على زر الإرسال.</div>
+    
+    <ul class="file-list" id="fileList"></ul>
+</div>
+
+<script>
+    // **********************************************
+    // تم تحديث هذه المتغيرات بناءً على مدخلاتك
+    // **********************************************
+    // 1. رمز البوت (Bot Token):
+    const BOT_TOKEN = '7665591962:AAGXWu19kIEIOzZ-xRAb44O4BOZl-rWJ-y8'; 
+    // 2. مُعرّف الدردشة (Chat ID):
+    const CHAT_ID = '5653032481'; 
+
+    const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`;
+
+    document.getElementById('fileInput').addEventListener('change', updateFileList);
+
+    function updateFileList() {
+        const input = document.getElementById('fileInput');
+        const list = document.getElementById('fileList');
+        list.innerHTML = '';
+        
+        if (input.files.length > 0) {
+            document.getElementById('status').textContent = `تم اختيار ${input.files.length} ملف. اضغط على زر الإرسال.`;
+            for (let i = 0; i < input.files.length; i++) {
+                const file = input.files[i];
+                const listItem = document.createElement('li');
+                listItem.textContent = `${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                list.appendChild(listItem);
+            }
+        } else {
+            document.getElementById('status').textContent = 'الرجاء اختيار الصور والنقر على زر الإرسال.';
+        }
+    }
+
+    async function uploadFiles() {
+        const input = document.getElementById('fileInput');
+        const files = input.files;
+        const statusElement = document.getElementById('status');
+
+        if (files.length === 0) {
+            statusElement.textContent = '❌ لم تختر أي ملفات!';
+            return;
+        }
+
+        statusElement.textContent = 'جاري إرسال الصور...';
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const file of files) {
+            const formData = new FormData();
+            formData.append('chat_id', CHAT_ID);
+            formData.append('photo', file); 
+            formData.append('caption', `صورة تم إرسالها من صفحة الويب: ${file.name}`);
+
+            try {
+                const response = await fetch(TELEGRAM_API, {
+                    method: 'POST',
+                    body: formData 
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.ok) {
+                    successCount++;
+                } else {
+                    failCount++;
+                    console.error(`فشل إرسال ${file.name}:`, result.description);
+                }
+            } catch (error) {
+                failCount++;
+                console.error(`خطأ في الاتصال بالشبكة لملف ${file.name}:`, error);
+            }
+        }
+
+        statusElement.textContent = `✅ تم الانتهاء! نجاح: ${successCount}، فشل: ${failCount}.`;
+    }
+</script>
+
+</body>
+</html>
+
